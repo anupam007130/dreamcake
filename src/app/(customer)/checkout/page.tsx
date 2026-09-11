@@ -111,7 +111,7 @@ export default function CheckoutPage() {
         key: razorpayRes.data.data.keyId,
         amount: razorpayRes.data.data.amount,
         currency: razorpayRes.data.data.currency,
-        name: 'Sweet Cake',
+        name: 'Dream Cake',
         description: `Order ${order.orderId}`,
         order_id: razorpayRes.data.data.orderId,
         handler: async (response: any) => {

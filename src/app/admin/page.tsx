@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
               <Shield className="w-9 h-9 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
-            <p className="text-gray-400 mt-1">Sweet Cake Management</p>
+            <p className="text-gray-400 mt-1">Dream Cake Management</p>
           </div>
 
           {error && (

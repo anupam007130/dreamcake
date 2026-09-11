@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Cake, LayoutDashboard, Package, ShoppingCart, Users, CreditCard, Settings, Bell, LogOut, Menu, X, Image } from 'lucide-react'
+import axios from 'axios'
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -13,17 +14,20 @@ const navItems = [
   { href: '/admin/payments', label: 'Payments', icon: CreditCard },
   { href: '/admin/banners', label: 'Banners', icon: Image },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
-  { href: '/admin/account', label: 'My Account', icon: Users },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [brandName, setBrandName] = useState('Dream Cake')
 
   useEffect(() => {
     const admin = localStorage.getItem('admin')
     setIsAdmin(!!admin)
+    axios.get('/api/settings').then((res) => {
+      if (res.data.data?.brand_name) setBrandName(res.data.data.brand_name)
+    }).catch(() => {})
   }, [pathname])
 
   const isLoginPage = pathname === '/admin' || pathname === '/admin/'
@@ -39,7 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
             <Cake className="w-6 h-6 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900">Sweet Cake</span>
+          <span className="text-lg font-bold text-gray-900">{brandName}</span>
         </div>
 
         <nav className="p-4 space-y-1">

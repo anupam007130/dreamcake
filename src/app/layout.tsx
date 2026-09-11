@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sweet Cake - Premium Online Cake Ordering",
+  title: "Dream Cake - Premium Online Cake Ordering",
   description: "Order freshly baked cakes delivered to your doorstep. Premium quality, beautiful designs, and unforgettable taste.",
 };
 

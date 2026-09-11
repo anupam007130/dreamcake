@@ -12,7 +12,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
-  const [brandName, setBrandName] = useState('Sweet Cake')
+  const [brandName, setBrandName] = useState('Dream Cake')
 
   useEffect(() => {
     axios.get('/api/settings').then((res) => {

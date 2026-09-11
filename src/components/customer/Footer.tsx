@@ -23,7 +23,7 @@ export default function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <Cake className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold">{settings.brand_name || 'Sweet Cake'}</span>
+              <span className="text-xl font-bold">{settings.brand_name || 'Dream Cake'}</span>
             </div>
             <p className="text-gray-400 text-sm">
               Premium cakes baked with love. Making your celebrations sweeter since 2024.
@@ -76,7 +76,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} {settings.brand_name || 'Sweet Cake'}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {settings.brand_name || 'Dream Cake'}. All rights reserved.</p>
         </div>
       </div>
     </footer>

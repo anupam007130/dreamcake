@@ -21,7 +21,7 @@ export default function OrderSuccessPage() {
           </h1>
 
           <p className="text-gray-600 text-lg mb-8">
-            Thank you for ordering from Sweet Cake. Your delicious cake is being prepared with love!
+            Thank you for ordering from Dream Cake. Your delicious cake is being prepared with love!
           </p>
 
           <div className="bg-pink-50 rounded-2xl p-6 mb-8">

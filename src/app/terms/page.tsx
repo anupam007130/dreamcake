@@ -17,7 +17,7 @@ export default function TermsPage() {
           <div className="space-y-6 text-gray-700 leading-relaxed">
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-3">1. Acceptance of Terms</h2>
-              <p>By accessing and using Sweet Cake website and services, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our services.</p>
+              <p>By accessing and using Dream Cake website and services, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our services.</p>
             </section>
 
             <section>
@@ -52,7 +52,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-3">8. Limitation of Liability</h2>
-              <p>Sweet Cake shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or services. Our total liability shall not exceed the amount paid for the specific order in question.</p>
+              <p>Dream Cake shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or services. Our total liability shall not exceed the amount paid for the specific order in question.</p>
             </section>
 
             <section>

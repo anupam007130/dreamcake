@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User } from '@/types'
 import { formatDate } from '@/lib/utils'
-import { Search, UserCheck, UserX, Ban, CheckCircle, Edit, X } from 'lucide-react'
+import { Search, UserCheck, UserX, Ban, CheckCircle, Edit, X, Eye, EyeOff, Key } from 'lucide-react'
 import axios from 'axios'
 
 export default function AdminUsersPage() {
@@ -15,6 +14,11 @@ export default function AdminUsersPage() {
   const [editLoading, setEditLoading] = useState(false)
   const [editMsg, setEditMsg] = useState('')
   const [editError, setEditError] = useState('')
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({})
+  const [userPasswords, setUserPasswords] = useState<Record<string, string>>({})
+  const [resetPasswordUser, setResetPasswordUser] = useState<any>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resetMsg, setResetMsg] = useState('')
 
   useEffect(() => {
     axios.get(`/api/admin/users?limit=100&search=${search}`).then((res) => {
@@ -27,6 +31,30 @@ export default function AdminUsersPage() {
     const res = await axios.put(`/api/admin/users/${userId}`, { [field]: !currentValue })
     if (res.data.success) {
       setUsers(users.map((u) => u.id === userId ? { ...u, [field]: !currentValue } : u))
+    }
+  }
+
+  const fetchPassword = async (userId: string) => {
+    if (userPasswords[userId]) {
+      setShowPasswords({ ...showPasswords, [userId]: !showPasswords[userId] })
+      return
+    }
+    const res = await axios.get(`/api/admin/users/${userId}`)
+    if (res.data.data?.password) {
+      setUserPasswords({ ...userPasswords, [userId]: res.data.data.password })
+      setShowPasswords({ ...showPasswords, [userId]: true })
+    }
+  }
+
+  const handleResetPassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      setResetMsg('Password must be at least 6 characters')
+      return
+    }
+    const res = await axios.put(`/api/admin/users/${resetPasswordUser.id}`, { newPassword })
+    if (res.data.success) {
+      setResetMsg('Password reset successfully!')
+      setTimeout(() => { setResetPasswordUser(null); setNewPassword(''); setResetMsg('') }, 1500)
     }
   }
 
@@ -76,8 +104,7 @@ export default function AdminUsersPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">User</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Contact</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Orders</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Password</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Status</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-600">Joined</th>
                 <th className="text-right px-6 py-4 text-sm font-semibold text-gray-600">Actions</th>
@@ -94,11 +121,20 @@ export default function AdminUsersPage() {
                       <div>
                         <p className="font-medium text-gray-900">{user.fullName}</p>
                         <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="text-sm text-gray-500">{user.mobile}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{user.mobile}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{user._count?.orders || 0}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 max-w-[200px]">
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded truncate">
+                        {showPasswords[user.id] ? (userPasswords[user.id] || '...') : '••••••••'}
+                      </code>
+                      <button onClick={() => fetchPassword(user.id)} className="text-gray-400 hover:text-gray-600" title="Show password hash">
+                        {showPasswords[user.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       user.isBlocked ? 'bg-red-100 text-red-800' :
@@ -111,6 +147,13 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4 text-sm text-gray-600">{formatDate(user.createdAt)}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => { setResetPasswordUser(user); setNewPassword(''); setResetMsg('') }}
+                        className="p-2 rounded-lg text-orange-500 hover:bg-orange-50"
+                        title="Reset Password"
+                      >
+                        <Key className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => openEdit(user)}
                         className="p-2 rounded-lg text-blue-500 hover:bg-blue-50"
@@ -141,7 +184,6 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Edit User Modal */}
       {editUser && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
@@ -151,65 +193,50 @@ export default function AdminUsersPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-
             <form onSubmit={handleEdit} className="p-6 space-y-4">
-              {editMsg && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">{editMsg}</div>
-              )}
-              {editError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">{editError}</div>
-              )}
-
+              {editMsg && <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">{editMsg}</div>}
+              {editError && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">{editError}</div>}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={editForm.fullName}
-                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  required
-                />
+                <input type="text" value={editForm.fullName} onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500" required />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={editForm.email}
-                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  required
-                />
+                <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500" required />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-                <input
-                  type="tel"
-                  value={editForm.mobile}
-                  onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  required
-                />
+                <input type="tel" value={editForm.mobile} onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500" required />
               </div>
-
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setEditUser(null)}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={editLoading}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-700 disabled:opacity-50"
-                >
-                  {editLoading ? 'Saving...' : 'Save Changes'}
-                </button>
+                <button type="button" onClick={() => setEditUser(null)} className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>
+                <button type="submit" disabled={editLoading} className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-700 disabled:opacity-50">{editLoading ? 'Saving...' : 'Save Changes'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {resetPasswordUser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900">Reset Password - {resetPasswordUser.fullName}</h3>
+              <button onClick={() => setResetPasswordUser(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {resetMsg && <div className={`p-3 rounded-xl text-sm ${resetMsg.includes('successfully') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{resetMsg}</div>}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500" />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setResetPasswordUser(null)} className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>
+                <button onClick={handleResetPassword} className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-700">Reset Password</button>
+              </div>
+            </div>
           </div>
         </div>
       )}
