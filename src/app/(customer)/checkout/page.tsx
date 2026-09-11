@@ -291,10 +291,10 @@ export default function CheckoutPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">Cash on Delivery</p>
-                      <p className="text-sm text-gray-600">Pay {formatPrice(advanceAmount)} advance now</p>
+                      <p className="text-sm text-gray-600">Pay {formatPrice(Math.min(codAdvanceAmount, total))} advance now, {formatPrice(total - Math.min(codAdvanceAmount, total))} on delivery</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-pink-600">{formatPrice(advanceAmount)}</p>
+                      <p className="font-bold text-pink-600">{formatPrice(Math.min(codAdvanceAmount, total))}</p>
                       <p className="text-xs text-gray-500">advance via Razorpay</p>
                     </div>
                   </div>
